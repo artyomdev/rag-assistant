@@ -1,0 +1,24 @@
+# Development overrides stacked on top of compose.yaml
+# Run: docker compose -f compose.yaml -f compose.dev.yaml up -d
+
+name: rag
+
+services:
+  rag:
+    build: .
+    image: rag:latest
+    volumes:
+      - ./data:/app/data
+      - ./storage:/app/storage
+      - .:/app
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+
+  ui:
+    build: .
+    image: rag:latest
+    command: ["streamlit", "run", "ui.py", "--server.port=9003", "--server.address=0.0.0.0"]
+    volumes:
+      - .:/app
+    environment:
+      - API_URL=http://rag:9004

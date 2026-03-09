@@ -1,0 +1,82 @@
+name: rag
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    environment:
+      - OLLAMA_HOST=0.0.0.0:11434
+    volumes:
+      - ollama-data:/root/.ollama
+    networks:
+      - webui-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 180s
+
+  minio:
+    image: minio/minio:latest
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=MgZpzt?JRrqUV&
+    volumes:
+      - minio-data:/data
+    command: server /data --console-address ":9001"
+    networks:
+      - webui-network
+    restart: unless-stopped
+
+  rag:
+    image: rag:latest
+    ports:
+      - "9004:9004"
+    networks:
+      - webui-network
+    volumes:
+      - ./data:/app/data
+      - ./storage:/app/storage
+    restart: unless-stopped
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  ui:
+    image: rag:latest
+    command: ["streamlit", "run", "ui.py", "--server.port=9003", "--server.address=0.0.0.0"]
+    ports:
+      - "9003:9003"
+    networks:
+      - webui-network
+    environment:
+      - API_URL=http://rag:9004
+    restart: unless-stopped
+
+volumes:
+  open-webui-data:
+  ollama-data:
+  minio-data:
+
+networks:
+  webui-network:
+    driver: bridge

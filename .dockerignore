@@ -1,0 +1,38 @@
+# Data and storage (mounted at runtime)
+/data
+/storage
+
+# Git metadata
+.git
+.gitignore
+
+# Local environments and IDE configuration
+.venv
+venv
+.env
+.env.*
+.vscode
+.idea
+*.swp
+*.swo
+
+# Python cache and build artefacts
+__pycache__
+*.py[cod]
+*$py.class
+*.pyo
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.coverage
+htmlcov
+*.egg-info
+.eggs
+dist
+build
+*.egg
+
+# Logs and temporary files
+*.log
+*.tmp
+.DS_Store

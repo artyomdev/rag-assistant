@@ -1,0 +1,15 @@
+# Production overrides stacked on top of compose.yaml
+# Run: docker compose -f compose.yaml -f compose.prod.yaml up -d
+# Secrets: create .env.prod and add env_file: .env.prod to services if needed
+
+name: rag
+
+services:
+  rag:
+    image: rag:latest
+    restart: always
+
+  ui:
+    image: rag:latest
+    command: ["streamlit", "run", "ui.py", "--server.port=9003", "--server.address=0.0.0.0"]
+    restart: always

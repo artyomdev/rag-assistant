@@ -1,0 +1,32 @@
+# Vector database core and search
+qdrant-client
+
+# Models and embeddings
+sentence-transformers
+torch
+transformers
+accelerate
+
+# Document conversion and smart chunking
+docling
+langchain-text-splitters
+langchain-core
+
+# LLM and Vision (Ollama API)
+ollama
+
+# API and UI
+fastapi
+uvicorn
+pydantic
+streamlit
+requests
+
+# Utility libraries
+pillow
+python-multipart
+tqdm
+
+# Scientific stack for clustering / analysis
+numpy
+scikit-learn
