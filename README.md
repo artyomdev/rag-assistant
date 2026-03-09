@@ -241,3 +241,7 @@ Example JSON response shape:
 - **Ingestion hardening**: better handling of large / heterogeneous document sets and incremental updates.
 - **Production deployment**: CI/CD, blue‑green deployments, and resource‑aware scaling strategies.
 
+
+
+This repository contains a simplified and sanitized version of an internal RAG system, adapted for demonstration and educational purposes.
+
