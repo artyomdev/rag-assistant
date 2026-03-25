@@ -1,53 +1,91 @@
-# Production RAG System
+# Production RAG System (Local LLM + GPU Inference)
 
-Production-style Retrieval-Augmented Generation (RAG) backend for question answering over document knowledge bases.
+End-to-end Retrieval-Augmented Generation system with local GPU-based inference and offline deployment.
 
-Built as an end-to-end system with retrieval, reranking, and GPU-based LLM inference.
-
----
-
-## Key Features
-
-- FastAPI backend API
-- Vector search using Qdrant
-- Local LLM inference via Ollama
-- Embeddings + reranking pipeline (PyTorch / sentence-transformers)
-- Document ingestion pipeline (PDF, Office, markdown)
-- Docker / Docker Compose deployment
-- Evaluation pipeline for answer quality
-
----
-
-## Architecture (High-Level)
-
-documents → chunking → embeddings → vector search → reranking → LLM → answer
-
----
-
-## Tech Stack
-
-**Backend:** Python, FastAPI  
-**AI / ML:** RAG, embeddings, PyTorch, Transformers  
-**Infra:** Docker, Linux  
-**Storage:** Qdrant, MinIO  
+Built to operate under real-world constraints: limited GPU memory, no external APIs, and production reliability requirements.
 
 ---
 
 ## Why this project
 
-- End-to-end RAG system (not a demo script)
-- Backend + infrastructure focused (not UI-heavy)
-- Uses local LLMs (no external API dependency)
-- Designed for real-world workloads
+This system was designed for environments where:
+
+- internet access is restricted (air-gapped infrastructure)
+- GPU resources are limited
+- inference cost and latency must be controlled
 
 ---
 
-## Quick Start
+## Architecture
+
+Pipeline:
+
+document ingestion → embeddings → vector search → reranking → LLM inference
+
+Core components:
+
+- Embeddings: bge-m3  
+- Vector DB: Qdrant (on-disk)  
+- Reranking: CrossEncoder  
+- LLM: local inference via Ollama  
+- API: FastAPI  
+
+---
+
+## Key engineering decisions
+
+- Reduced reranking cost via candidate filtering  
+  (**80 → 25 → 5** instead of reranking full candidate set)
+
+- Optimized GPU usage:
+  - FP16 inference for reranker
+  - shared embedding model (reduced duplicate VRAM usage)
+  - reduced context size for inference
+
+- Vision ingestion optimization:
+  - image downscaling (1280 → 768)
+  - JPEG compression
+  - request throttling to avoid GPU overload
+
+- Batched vector indexing (100 vectors per upsert)
+
+---
+
+## Real-world constraints
+
+- Fully offline / air-gapped deployment  
+- No runtime model downloads (all models pre-cached in Docker images)  
+- GPU shared between embedding, reranking, and LLM inference  
+
+---
+
+## Production issues
+
+- Power outage caused model cache loss  
+  → fixed by embedding model weights into Docker images  
+
+- GPU contention between services  
+  → mitigated via sequential processing and throttling  
+
+---
+
+## Scale
+
+- 2000+ documents (including UI screenshots)  
+- 100k+ vectors stored in Qdrant  
+- ~72h full ingestion pipeline runtime  
+
+---
+
+## Tech stack
+
+Python • FastAPI • Docker • Qdrant • PyTorch • CUDA • Ollama  
+Transformers • SentenceTransformers • RAG • Vector Search  
+
+---
+
+## Run locally
 
 ```bash
 docker compose up --build
-
-
-
-This repository contains a simplified and sanitized version of an internal RAG system, adapted for demonstration and educational purposes.
 
